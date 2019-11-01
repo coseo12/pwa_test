@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>offline-web</title>
+    <script src="app.js"></script>
+    <link rel="manifest" href="manifest.json" />
+    <link rel="stylesheet" href="./css/app.css" />
+  </head>
+  <body>
+    <div>Hello PWA</div>
+    <div>
+      <img src="images/vue.png" alt="" width="150" height="150" />
+    </div>
+    <script>
+      console.log('hi');
+      console.log('add');
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker
+          .register('sw.js')
+          .then(regSw => console.log(regSw))
+          .catch(error => console.log(error));
+      }
+
+      // 설치 제어 관련 예제구문
+      // let deferredPrompt;
+
+      // window.addEventListener('beforeinstallprompt', e => {
+      //   // 설치 확인
+      //   console.log('beforeinstallprompt Event fired');
+      //   e.preventDefault();
+      //   deferredPrompt = e;
+      // });
+      // // 특정 버튼 클릭 시에 앱 설치
+      // btn.addEventListener('click', e => {
+      //   deferredPrompt.prompt();
+      //   deferredPrompt.userChoice.then(result => {
+      //     if (result === 'accepted') {
+      //       console.log('The app has been installed');
+      //     }
+      //     deferredPrompt = null;
+      //   });
+      // });
+    </script>
+  </body>
+</html>
