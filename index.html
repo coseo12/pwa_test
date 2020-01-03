@@ -1,28 +1,73 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
-    <title>offline-web</title>
-    <script src="app.js"></script>
-    <link rel="manifest" href="manifest.json" />
-    <link rel="stylesheet" href="./css/app.css" />
-  </head>
-  <body>
-    <div>Hello PWA</div>
-    <div>
-      <img src="images/vue.png" alt="" width="150" height="150" />
-    </div>
-    <script>
-      console.log('hi');
-      console.log('add');
-      if ('serviceWorker' in navigator) {
-        navigator.serviceWorker
-          .register('sw.js')
-          .then(regSw => console.log(regSw))
-          .catch(error => console.log(error));
-      }
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+  <title>offline-web</title>
+  <script src="app.js"></script>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="./css/app.css" />
+  <link rel="shortcut icon" href="favicon.ico">
+  <link rel="icon" href="favicon.ico">
+</head>
+
+<body>
+  <div>Hello PWA</div>
+  <div>
+    <img src="./images/vue.png" alt="" width="150" height="150" />
+    <button type="button">Subscribe!</button>
+  </div>
+  <script>
+    let appServerPublicKey = 'BPlQW1uhrqbCv9tG-5qP9p4GZztWzbG60YCisaCxJZdw52j1ld4lH4ETCOxZ88L-eqARSyByVw-W5Npp1fYZSTo';
+    let isSubcribed = false;
+    let swRegist = null;
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker
+        .register('sw.js')
+        .then(regSw => {
+          console.log('Service worker registered');
+          swRegist = regSw;
+          swRegist.addEventListener('updatefound', () => {
+            const newWorker = swRegist.installing;
+            console.log('Service worker update found!');
+            newWorker.addEventListener('statechange', function () {
+              console.log('Service worker state changed : ', this.state);
+            })
+          })
+        })
+        .catch(error => console.log(error));
+      navigator.serviceWorker.addEventListener('controllerchange', () => console.log('Controller changed'));
+    }
+
+    /*========== TODO: 아래에 Push 관련 로직 구현 ========== */
+    // 구독 버튼 상태 갱신
+    function updateButton() {
+
+    }
+
+    // 구독 정보 갱신
+    function updateSubscription(subscription) {
+      // TODO: 구독 정보 서버로 전송
+
+    }
+
+    // 알림 구독
+    function subscribe() {
+
+    }
+
+    // 알림 구독 취소
+    function unsubscribe() {
+
+    }
+
+    // Push 초기화
+    function initPush() {
+
+    }
 
       // 설치 제어 관련 예제구문
       // let deferredPrompt;
@@ -43,6 +88,7 @@
       //     deferredPrompt = null;
       //   });
       // });
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>

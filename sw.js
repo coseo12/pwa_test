@@ -2,13 +2,18 @@ console.log('Service Work Run!! : ', self);
 
 // 오프라인 웹앱을 위한 기능 구현
 
-var CACHE_NAME = 'pwa-offline-v3'; // 캐싱 스토리지에 저장될 파일 이름
+var version = 'V2';
+var CACHE_NAME = 'pwa-offline-v2'; // 캐싱 스토리지에 저장될 파일 이름
+let newCacheList = ['pwa-offline-v2'];
 var filesToCache = ['./', './css/app.css', './images/vue.png']; // 캐싱할 웹 리소스의 목록
+
+console.log('Version : ', version);
+
 
 // 오프라인 웹 리소스를 위한 캐시 생성 및 설치
 self.addEventListener('install', event => {
   console.log('Service Worker Install');
-
+  self.skipWaiting();
   // waitUntil 이벤트가 끝나기 전까진 종료되지 않음
   event.waitUntil(
     // 캐시 스토리지 오픈
@@ -44,8 +49,6 @@ self.addEventListener('fetch', event => {
 // 웹 리소스 업데이트 시 사용
 self.addEventListener('activate', event => {
   console.log('Service Worker Activate');
-
-  let newCacheList = ['pwa-offline-v3'];
 
   // waitUntil 이벤트가 끝나기 전까진 종료되지 않음
   event.waitUntil(
