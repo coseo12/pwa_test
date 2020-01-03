@@ -2,9 +2,9 @@ console.log('Service Work Run!! : ', self);
 
 // 오프라인 웹앱을 위한 기능 구현
 
-var version = 'V2';
-var CACHE_NAME = 'pwa-offline-v2'; // 캐싱 스토리지에 저장될 파일 이름
-let newCacheList = ['pwa-offline-v2'];
+var version = 'V4';
+var CACHE_NAME = 'pwa-offline-v4'; // 캐싱 스토리지에 저장될 파일 이름
+let newCacheList = ['pwa-offline-v4'];
 var filesToCache = ['./', './css/app.css', './images/vue.png']; // 캐싱할 웹 리소스의 목록
 
 console.log('Version : ', version);
@@ -68,4 +68,16 @@ self.addEventListener('activate', event => {
         console.log(error);
       }),
   );
+});
+
+// Functional: PUSH
+self.addEventListener('push', event => {
+  console.log('Push ' + event.data.text());
+
+  const title = 'My PWA!';
+  const options = {
+    body: event.data.text()
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
 });

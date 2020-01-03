@@ -17,7 +17,14 @@
   <div>Hello PWA</div>
   <div>
     <img src="./images/vue.png" alt="" width="150" height="150" />
-    <button type="button">Subscribe!</button>
+  </div>
+  <div class="wrap">
+    <button id="subscribe">Subscribe!</button>
+  </div>
+  <div class="wrap hide">
+    <div id="subscription_detail">
+      <!-- Subscription data will append here -->
+    </div>
   </div>
   <script>
     let appServerPublicKey = 'BPlQW1uhrqbCv9tG-5qP9p4GZztWzbG60YCisaCxJZdw52j1ld4lH4ETCOxZ88L-eqARSyByVw-W5Npp1fYZSTo';
@@ -28,8 +35,9 @@
       navigator.serviceWorker
         .register('sw.js')
         .then(regSw => {
-          console.log('Service worker registered');
           swRegist = regSw;
+          console.log('Service worker registered');
+          initPush();
           swRegist.addEventListener('updatefound', () => {
             const newWorker = swRegist.installing;
             console.log('Service worker update found!');
@@ -42,21 +50,62 @@
       navigator.serviceWorker.addEventListener('controllerchange', () => console.log('Controller changed'));
     }
 
+    function urlB64ToUint8Array(base64String) {
+      const padding = '='.repeat((4 - base64String.length % 4) % 4);
+      const base64 = (base64String + padding)
+        .replace(/\-/g, '+')
+        .replace(/_/g, '/');
+
+      const rawData = window.atob(base64);
+      const outputArray = new Uint8Array(rawData.length);
+
+      for (let i = 0; i < rawData.length; ++i) {
+        outputArray[i] = rawData.charCodeAt(i);
+      }
+      return outputArray;
+    }
+
     /*========== TODO: 아래에 Push 관련 로직 구현 ========== */
     // 구독 버튼 상태 갱신
     function updateButton() {
-
+      const pushButton = document.getElementById('subscribe');
+      if (isSubcribed) {
+        pushButton.textContent = 'Disable Push Messaging';
+      } else {
+        pushButton.textContent = 'Enable Push Messaging';
+      }
+      pushButton.disabled = false;
     }
 
     // 구독 정보 갱신
     function updateSubscription(subscription) {
       // TODO: 구독 정보 서버로 전송
-
+      let detailArea = document.getElementById('subscription_detail');
+      if (subscription) {
+        detailArea.innerText = JSON.stringify(subscription);
+        detailArea.parentElement.classList.remove('hide');
+      } else {
+        detailArea.parentElement.classList.add('hide');
+      }
     }
 
     // 알림 구독
     function subscribe() {
+      const applicationServerKey = urlB64ToUint8Array(appServerPublicKey);
+      console.log(swRegist);
 
+      swRegist.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: applicationServerKey
+      }).then(subscription => {
+        console.log('User is subscribed');
+        updateSubscription(subscribe);
+        isSubcribed = true;
+        updateButton();
+      }).catch(error => {
+        console.log(error)
+        updateButton();
+      });
     }
 
     // 알림 구독 취소
@@ -66,7 +115,27 @@
 
     // Push 초기화
     function initPush() {
+      const pushButton = document.getElementById('subscribe');
+      pushButton.addEventListener('click', () => {
+        if (isSubcribed) {
+          // .. 취소 처리
+        } else {
+          subscribe();
+        }
+      });
 
+      swRegist.pushManager.getSubscription()
+        .then(subscription => {
+          isSubcribed = !(subscription === null);
+          updateSubscription(subscription);
+          if (isSubcribed) {
+            console.log('User is subscribed');
+          } else {
+            console.log('User is not subscribed');
+          }
+          updateButton();
+        })
+        .catch(error => console.log(error));
     }
 
       // 설치 제어 관련 예제구문
