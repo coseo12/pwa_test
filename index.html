@@ -28,7 +28,7 @@
   </div>
   <script>
     let appServerPublicKey = 'BPlQW1uhrqbCv9tG-5qP9p4GZztWzbG60YCisaCxJZdw52j1ld4lH4ETCOxZ88L-eqARSyByVw-W5Npp1fYZSTo';
-    let isSubcribed = false;
+    let isSubscribed = false;
     let swRegist = null;
 
     if ('serviceWorker' in navigator) {
@@ -69,7 +69,14 @@
     // 구독 버튼 상태 갱신
     function updateButton() {
       const pushButton = document.getElementById('subscribe');
-      if (isSubcribed) {
+
+      if (Notification.permission === 'denied') {
+        pushButton.textContent = 'Push Messaging Blocked';
+        pushButton.disabled = true;
+        updateSubscription(null);
+        return;
+      }
+      if (isSubscribed) {
         pushButton.textContent = 'Disable Push Messaging';
       } else {
         pushButton.textContent = 'Enable Push Messaging';
@@ -79,6 +86,7 @@
 
     // 구독 정보 갱신
     function updateSubscription(subscription) {
+
       // TODO: 구독 정보 서버로 전송
       let detailArea = document.getElementById('subscription_detail');
       if (subscription) {
@@ -92,15 +100,13 @@
     // 알림 구독
     function subscribe() {
       const applicationServerKey = urlB64ToUint8Array(appServerPublicKey);
-      console.log(swRegist);
-
       swRegist.pushManager.subscribe({
         userVisibleOnly: true,
         applicationServerKey: applicationServerKey
       }).then(subscription => {
         console.log('User is subscribed');
-        updateSubscription(subscribe);
-        isSubcribed = true;
+        updateSubscription(subscription);
+        isSubscribed = true;
         updateButton();
       }).catch(error => {
         console.log(error)
@@ -110,25 +116,45 @@
 
     // 알림 구독 취소
     function unsubscribe() {
-
+      console.log('unsubscribe click')
+      swRegist.pushManager.getSubscription()
+        .then(subscription => {
+          if (subscription) {
+            updateSubscription(null);
+            console.log('User is unsubscribed.');
+            isSubscribed = false;
+            updateButton();
+            // return subscription.unsubscribe();
+            subscription.unsubscribe().then(successful => {
+              updateSubscription(null);
+              console.log('User is unsubscribed.');
+              isSubscribed = false;
+            }).catch(error => console.log(error))
+          }
+        })
+        .catch(error => {
+          console.log('Error unsubscribing', error);
+        })
     }
 
     // Push 초기화
     function initPush() {
       const pushButton = document.getElementById('subscribe');
       pushButton.addEventListener('click', () => {
-        if (isSubcribed) {
-          // .. 취소 처리
+        if (isSubscribed) {
+          // ... 취소 처리
+          unsubscribe();
         } else {
+          // ... 승인 처리
           subscribe();
         }
       });
 
       swRegist.pushManager.getSubscription()
         .then(subscription => {
-          isSubcribed = !(subscription === null);
+          isSubscribed = !(subscription === null);
           updateSubscription(subscription);
-          if (isSubcribed) {
+          if (isSubscribed) {
             console.log('User is subscribed');
           } else {
             console.log('User is not subscribed');
